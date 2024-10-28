@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>About Us</title>
+
+    <style type="text/css">
+        .btn {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: RoyalBlue;
+        }
+
+        body {
+            background-image: url('https://oldschoolgrappling.com/wp-content/uploads/2018/08/Background-opera-speeddials-community-web-simple-backgrounds.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            margin: 30;
+            font-size: 150%;
+            font-family: monospace;
+        }
+
+        #logo {
+            font-family: Calibri, sans-serif;
+            font-weight: bold;
+            font-size: larger;
+            color: #505050;
+            margin: 0.5em;
+        }
+
+        #editor {
+            text-align: center;
+            margin-top: 1em;
+        }
+
+        #output {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        #content {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        .operation {
+            border: solid #d0d0d0 1px;
+            background-color: #f0f0f0;
+            padding: 1.5em;
+            margin: 1em;
+            width: 14em;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="editor">
+        <div id="app">
+            <div id="logo">
+                About eHealth
+            </div>
+            <hr>
+            <button id="homePage" class="btn"><i class="fa fa-home"></i> Home</button>
+            <button id="patientCases" class="btn"><i class="fa fa-bars"></i> Cases</button>
+            <button id="patientCasesClosed" class="btn"><i class="fa fa-bars"></i> Closed Cases</button>
+            <button id="infoPage" class="btn"><i class="fa fa-info"></i> Info</button>
+            <button id="logout" class="btn"><i class="fa fa-sign-out"></i> Logout</button>
+            <br>
+            <br>
+            <br>
+            <p1> <b>Use Case: </b>As a <b>Nurse</b> this platform can be utilized to <b>Manage Cases</b> from patients that have signed up
+                into the eHealth application using the instructions sent to them via email and the Doctor has sent their case over to the Nurse users.
+                <br><br>
+                <br><br>
+                <b>Goal: </b>The aim of <b>eHealth</b> is to minimize face to face interaction between patients and doctors for health risks that could be deemed
+                not severe and could easily be handled online using an instant messaging system equipped with image support and handling of multiple cases by utilizing
+                a sorting system where the doctor is responsible for the patients they have invited to the platform. If the doctor is overwhelmed then the cases can be
+                transferred to nurse users of the application.
+                <br><br>
+                <br><br>
+                <b>Safety: </b>eHealth application is connected to a real time database utilizing the Firebase API, allowing for encrypted storage of all user accounts
+                and data.
+            </p1>
+            <br>
+            </head>
+</body>
+
+<script src="https://smtpjs.com/v3/smtp.js"></script>
+
+<script type="module">
+    //Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+    import { getDatabase, ref, onValue, set, push, child, update } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyA0ENM020LPk98LkjhN9ViZjyg42PblhsY",
+        authDomain: "labhelper-a5690.firebaseapp.com",
+        databaseURL: "https://labhelper-a5690-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "labhelper-a5690",
+        storageBucket: "labhelper-a5690.appspot.com",
+        messagingSenderId: "444496150507",
+        appId: "1:444496150507:web:2da752bd23250f39fca3ae",
+        measurementId: "G-WBVDGV3753"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth();
+    const db = getDatabase(app);
+    console.log("page loaded");
+
+    infoPage.addEventListener('click', (e) => {
+        window.location.href = "nurseAboutUs.html";
+    })
+
+    var role = localStorage.getItem("userRole");
+    console.log("user role: " + role);
+
+    homePage.addEventListener('click', (e) => {
+        if (role == "doctor") {
+            window.location.href = "doctorHome.html";
+        }
+        else {
+            window.location.href = "nurseHome.html";
+        }
+    })
+
+    patientCases.addEventListener('click', (e) => {
+        window.location.href = "nursePatientCases.html";
+    })
+
+    patientCasesClosed.addEventListener('click', (e) => {
+        window.location.href = "nursePatientCasesClosed.html";
+    })
+
+    //logout will sign user out, and below methid "onAuthChange" will catch else statement that no auth user detected and will go back to the index html
+    logout.addEventListener('click', (e) => {
+        console.log("starting to sign user out");
+        signOut(auth).then(() => {
+            // Sign-out successful.
+            console.log("user signed out, returning to index");
+        }).catch((error) => {
+            // An error happened.
+            console.log(error);
+        });
+    })
+
+
+    onAuthStateChanged(auth, (user) => {
+        console.log("auth state changed");
+        if (user) {
+            console.log("doctor logged in");
+        } else {
+            // User is signed out
+            //send him back to home page to login/register
+            window.location.href = "index.html";
+        }
+    });
+</script>

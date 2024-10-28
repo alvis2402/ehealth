@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "444496150507",
+    "firebase_url": "https://labhelper-a5690-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "labhelper-a5690",
+    "storage_bucket": "labhelper-a5690.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444496150507:android:76269ecfb0960c29fca3ae",
+        "android_client_info": {
+          "package_name": "com.example.mobilepatient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "444496150507-lkc6e69shsscli1aciq5heikfuq5nss9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-UWPbMlv0Jg5-sTdkESPF4vERm8szI98"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "444496150507-lkc6e69shsscli1aciq5heikfuq5nss9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

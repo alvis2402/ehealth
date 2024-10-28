@@ -1,0 +1,12 @@
+27-10-2022
+35 Minutes - Talked about scope of project, presented functional/non-functional requirements. Envisioned a possible solution and how to tackle it. Key take away to choose development technologies for next meeting i.e. react vs nodejs, flutter vs android studio. Also a running "hello world" application.
+
+8-11-2022
+32 Minutes - Presented a working 2 page html website for register/login screen of the website interface of the solution, and report of all possible technologies that could be used, compared each and decided on Android Studio and Java. Next meeting take away create a system based on 3 storyboards below:
+As a Doctor I can use the system to generate an email for a patient with a unique ID and link to the app download.
+As a Patient I can register on the mobile application using my personal details and a unique ID sent to me by the doctor.
+As a Doctor I can see a list of newly registered patients who have used their unique ID.
+
+
+22-11-2022
+30 Minutes - Created a mobile interface for login/register/homepage activites, linked to a database using Firebase API. Accounts encrypted logins/passwords, store personal data e.g name, age, under unique user ID. Need to further develop the html website interface linking to same database as mobile app for user to user interaction. Also start developing functionality to take photographs in the mobile app.

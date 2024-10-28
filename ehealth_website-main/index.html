@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>QUBeditotron3000</title>
+
+    <script type="text/javascript">
+        //useless function
+        function openPage(name) {
+            window.open('register.html');
+        }
+    </script>
+
+    <style type="text/css">
+        .btn {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: RoyalBlue;
+        }
+
+        body {
+            background-image: url('https://oldschoolgrappling.com/wp-content/uploads/2018/08/Background-opera-speeddials-community-web-simple-backgrounds.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            margin: 30;
+            font-size: 150%;
+            font-family: monospace;
+        }
+
+        #logo {
+            font-family: Calibri, sans-serif;
+            font-weight: bold;
+            font-size: larger;
+            color: #505050;
+            margin: 0.5em;
+        }
+
+        #editor {
+            text-align: center;
+            margin-top: 1em;
+        }
+
+        #output {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        #content {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        .operation {
+            border: solid #d0d0d0 1px;
+            background-color: #f0f0f0;
+            padding: 1.5em;
+            margin: 1em;
+            width: 14em;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="editor">
+        <div id="logo">
+            Welcome to eHealth
+        </div>
+        <hr>
+        <br>
+        <p1 id="title">Please Login/Register as a nurse/doctor to access the appropriate window.</p1>
+        <br>
+        <br>
+        <br>
+        <label for="email"><b>Email</b></label>
+        <br>
+        <input type="text" placeholder="Enter Email" name="email" id="email" required>
+        <br>
+        <br>
+        <label for="password"><b>Password</b></label>
+        <br>
+        <input type="password" placeholder="Password" name="password" id="password" required>
+        <br>
+        <br>
+        <button id="register" class="btn" onclick="location.href='register.html';"><i class="fa fa-plus"></i> Register</button>
+        <button id="loginBtn" class="btn"><i class="fa fa-sign-in"></i> Login</button>
+        </head>
+</body>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+    import { getAuth, setPersistence, signInWithEmailAndPassword, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyA0ENM020LPk98LkjhN9ViZjyg42PblhsY",
+        authDomain: "labhelper-a5690.firebaseapp.com",
+        databaseURL: "https://labhelper-a5690-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "labhelper-a5690",
+        storageBucket: "labhelper-a5690.appspot.com",
+        messagingSenderId: "444496150507",
+        appId: "1:444496150507:web:2da752bd23250f39fca3ae",
+        measurementId: "G-WBVDGV3753"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    loginBtn.addEventListener('click', (e) => {
+        //getting user login info
+        var userEmail = document.getElementById("email").value;
+        var userPass = document.getElementById("password").value;
+
+        if (userEmail == "") {
+            console.log("one of the input fields empty stopping login");
+            alert("Please fill in your Email");
+            return;
+        }
+        else if (userPass == "") {
+            console.log("one of the input fields empty stopping login");
+            alert("Please fill in your password");
+            return;
+        }
+
+        console.log("login btn clicked " + userEmail + " " + userPass);
+
+        setPersistence(auth, browserSessionPersistence)
+            .then(() => {
+                // Existing and future Auth states are now persisted in the current
+                // session only. Closing the window would clear any existing state even
+                // if a user forgets to sign out.
+                // ...
+                // New sign-in will be persisted with session persistence.
+                console.log("signin successful");
+                return signInWithEmailAndPassword(auth, userEmail, userPass);
+            })
+            .catch((error) => {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.log(errorMessage);
+                alert(errorMessage);
+            });
+
+        //after successful sign in check user is nurse or doctor to send him to correct page by reading database
+        //get the user id to see their role
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                console.log(user.uid + "id of the logged in user");
+
+                const dbref = ref(db, 'users/' + user.uid + '/role');
+                onValue(dbref, (snapshot) => {
+                    var userRole = snapshot.val();
+                    console.log("database read value: " + userRole);
+
+                    if (userRole == "doctor") {
+                        window.location.href = "doctorHome.html";
+                    }
+                    else {
+                        window.location.href = "nurseHome.html";
+                    }
+                });
+
+            }
+        })
+
+        if (true) {
+            //window.location.href = "nurseHome.html";
+            console.log("if statement passed");
+        }
+        else {
+            window.location = "doctorHome.html";
+        }
+    })
+</script>

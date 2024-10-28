@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Patient Cases</title>
+
+    <script type="text/javascript">
+
+    </script>
+
+    <style type="text/css">
+        .btn {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: RoyalBlue;
+        }
+
+        body {
+            background-image: url('https://oldschoolgrappling.com/wp-content/uploads/2018/08/Background-opera-speeddials-community-web-simple-backgrounds.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            margin: 30;
+            font-size: 150%;
+            font-family: monospace;
+        }
+
+        #logo {
+            font-family: Calibri, sans-serif;
+            font-weight: bold;
+            font-size: larger;
+            color: #505050;
+            margin: 0.5em;
+        }
+
+        #editor {
+            text-align: center;
+            margin-top: 1em;
+        }
+
+        #output {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        #content {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        .operation {
+            border: solid #d0d0d0 1px;
+            background-color: #f0f0f0;
+            padding: 1.5em;
+            margin: 1em;
+            width: 14em;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need 
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, set, push, child, update, remove, get } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+
+        //setting up the firebase database to the project
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0ENM020LPk98LkjhN9ViZjyg42PblhsY",
+            authDomain: "labhelper-a5690.firebaseapp.com",
+            databaseURL: "https://labhelper-a5690-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "labhelper-a5690",
+            storageBucket: "labhelper-a5690.appspot.com",
+            messagingSenderId: "444496150507",
+            appId: "1:444496150507:web:2da752bd23250f39fca3ae",
+            measurementId: "G-WBVDGV3753"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth();
+        const db = getDatabase(app);
+        console.log("page loaded - ready");
+
+        infoPage.addEventListener('click', (e) => {
+            window.location.href = "aboutUs.html";
+        })
+
+
+        var role = localStorage.getItem("userRole");
+        console.log("user role: " + role);
+
+
+        homePage.addEventListener('click', (e) => {
+            if (role == "doctor") {
+                window.location.href = "doctorHome.html";
+            }
+            else {
+                window.location.href = "nurseHome.html";
+            }
+        })
+
+        newPatient.addEventListener('click', (e) => {
+            window.location.href = "createNewPatient.html";
+        })
+
+        patientList.addEventListener('click', (e) => {
+            window.location.href = "patientList.html";
+        })
+
+        patientCases.addEventListener('click', (e) => {
+            window.location.href = "patientCases.html";
+        })
+
+        patientCasesClosed.addEventListener('click', (e) => {
+            window.location.href = "patientCasesClosed.html";
+        })
+
+        inactivePatientList.addEventListener('click', (e) => {
+            window.location.href = "patientListNonActive.html";
+        })
+
+        //logout will sign user out, and below methid "onAuthChange" will catch else statement that no auth user detected and will go back to the index html
+        logout.addEventListener('click', (e) => {
+            console.log("starting to sign user out");
+            signOut(auth).then(() => {
+                // Sign-out successful.
+                console.log("user signed out, returning to index");
+            }).catch((error) => {
+                // An error happened.
+                console.log(error);
+            });
+        })
+
+
+        //method which will add the patients into a list to display on page
+        function addItemsToList(patientID, name, caseID, caseText) {
+            var ul = document.getElementById('list');
+            var header = document.createElement('h2');
+
+            // creating button element
+            var button = document.createElement('BUTTON');
+
+            // creating text to be
+            //displayed on button
+            var text = document.createTextNode("View Problem");
+
+            // appending text to button
+            button.appendChild(text);
+            button.style.background = "DodgerBlue";
+            button.style.color = "white";
+            button.style.width = '200px';
+            button.style.height = '40px';
+            button.style.fontSize = "20px";
+
+            //create button trigger for 
+            button.addEventListener('click', () => {
+                console.log('creating button for case ID: ' + caseID + " patientID: " + patientID);
+
+                //we save the selected patient ID to local storage to be accessed on next page.
+                //local storage can store more value than cookies and will reset when the browser closes
+                localStorage.setItem("patient-id", patientID);
+                localStorage.setItem("patient-case", caseID);
+                localStorage.setItem("case-msg", caseText);
+                localStorage.setItem("patient-name", name);
+                window.location.href = "selectedCase.html";
+            })
+
+
+            var _info = document.createElement('li');
+            var _newpatientemail = document.createElement('li');
+
+            header.innerHTML = '<br><br>Case: ' + caseID;
+
+            _info.innerHTML = '<b>Message:</b> ' + caseText + '<br><b>Patient ID: </b>' + patientID + '<br><b>Patient Name:</b> ' + name;
+
+            //appends the 'list' named ul with header containing patient name and _info containing patient data
+            ul.appendChild(header);
+            ul.appendChild(button);
+            ul.appendChild(_info);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            console.log("auth state changed");
+            if (user) {
+                // User is signed in, get ID
+                const uid = user.uid;
+                console.log("account id: " + uid);
+
+                //read multiple childs from database at once here to fill in user info
+                //on page startup fetch all data
+                function FetchAllData() {
+                    console.log("entered fetchalldata");
+
+                    const db = getDatabase();
+                    const dbref = ref(db, 'patientInfo');
+
+                    //initialize list to 'ul' variable
+                    var ul = document.getElementById('list');
+
+                    //reset the list on every load of new page
+                    ul.innerHTML = "";
+
+                    //on activa value change listener pointing at the database reference we set to patient cases list
+                    onValue(dbref, (snapshot) => {
+
+                        //on every data change clear the displayed list to build new updated one
+                        ul.innerHTML = "";
+
+                        //for each patient node get case information and send to addItemsToList method
+                        snapshot.forEach(
+                            function (ChildSnaphot) {
+                                //get current patients id and its assigned doctor ID
+                                var patientID = ChildSnaphot.key;
+                                var doctorID = ChildSnaphot.val().doctorID;
+                                var activated = ChildSnaphot.val().activated;
+                                var name = ChildSnaphot.val().name;
+
+
+                                //check if doctor ID of patient matches signed in doctors ID
+                                if (activated && uid == doctorID) {
+                                    console.log("Patient found for signed in doctor. Patient ID: ", patientID);
+
+                                    //go through each patients active cases and list them below
+                                    const dbcases = ref(db, 'patientInfo/' + patientID + '/cases');
+                                    onValue(dbcases, (datasnapshot) => {
+                                        datasnapshot.forEach(
+                                            function (dataChildSnapshot) {
+                                                //save case ID and case text to use in print list of active cases on this page
+                                                var caseID = dataChildSnapshot.key;
+                                                var caseText = dataChildSnapshot.val().text;
+
+                                                //read if case is closed by checking if message value exists under /status of case
+                                                const dbstatus = ref(db, 'patientInfo/' + patientID + "/cases/" + caseID + "/status");
+
+                                                get(child(dbstatus, 'nurseCase')).then((snapshot) => {
+                                                    if (!snapshot.exists()) {
+                                                        get(child(dbstatus, `message`)).then((snapshot2) => {
+                                                            if (!snapshot2.exists()) {
+                                                                //if "message" exists, it means case was closed with reason
+                                                                addItemsToList(patientID, name, caseID, caseText);
+                                                            } else {
+                                                                console.log("No data available");
+                                                            }
+                                                        }).catch((error) => {
+                                                            console.error(error);
+                                                        });
+                                                    } else {
+                                                        console.log("found nruseCaes");
+                                                    }
+                                                }).catch((error) => {
+                                                    console.log(error);
+                                                });
+                                            }
+                                        )
+                                    })
+                                }
+                            }
+                        )
+                    });
+                }
+
+                //load function fetchalldata when page is loaded
+                window.onload = FetchAllData();
+
+            } else {
+                // User is signed out
+                //send him back to home page to login/register
+                window.location.href = "index.html";
+            }
+        });
+
+    </script>
+
+    <div id="editor">
+        <div id="app">
+            <div id="logo">
+                Cases
+            </div>
+            <hr>
+            <button id="homePage" class="btn"><i class="fa fa-home"></i> Home</button>
+            <button id="patientCases" class="btn"><i class="fa fa-bars"></i> Cases</button>
+            <button id="patientCasesClosed" class="btn"><i class="fa fa-bars"></i> Closed Cases</button>
+            <button id="newPatient" class="btn"><i class="fa fa-user-plus"></i> Register Patient</button>
+            <button id="patientList" class="btn"><i class="fa fa-users"></i> Patient List</button>
+            <button id="inactivePatientList" class="btn"><i class="fa fa-users"></i> Non-Active Patient List</button>
+            <button id="infoPage" class="btn"><i class="fa fa-info"></i> Info</button>
+            <button id="logout" class="btn"><i class="fa fa-sign-out"></i> Logout</button>
+            <br>
+            <br>
+            <p1>This page displays all <b>Patient Cases</b> that belong
+                to you.</p1>
+            <br>
+            <br>
+            <ul id="list"></ul>
+
+            </ul>
+        </div>
+</body>
+
+
+</html>

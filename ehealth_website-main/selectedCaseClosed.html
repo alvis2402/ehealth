@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Selected Closed Case</title>
+
+    <script type="text/javascript">
+
+    </script>
+
+    <style type="text/css">
+        .btn {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Darker background on mouse-over */
+        .btn:hover {
+            background-color: RoyalBlue;
+        }
+
+        body {
+            background-image: url('https://oldschoolgrappling.com/wp-content/uploads/2018/08/Background-opera-speeddials-community-web-simple-backgrounds.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            margin: 30;
+            font-size: 150%;
+            font-family: monospace;
+        }
+
+        #logo {
+            font-family: Calibri, sans-serif;
+            font-weight: bold;
+            font-size: larger;
+            color: #505050;
+            margin: 0.5em;
+        }
+
+        #editor {
+            text-align: center;
+            margin-top: 1em;
+        }
+
+        #output {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        #content {
+            font-size: 100%;
+            padding: 0.2em;
+            margin: 0.2em;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        .operation {
+            border: solid #d0d0d0 1px;
+            background-color: #f0f0f0;
+            padding: 1.5em;
+            margin: 1em;
+            width: 14em;
+        }
+
+        img {
+            height: 400px;
+            width: 400px;
+            border: 2px solid black;
+            object-fit: contain;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need 
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, set, push, child, update, remove, get } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+
+        //setting up the firebase database to the project
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0ENM020LPk98LkjhN9ViZjyg42PblhsY",
+            authDomain: "labhelper-a5690.firebaseapp.com",
+            databaseURL: "https://labhelper-a5690-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "labhelper-a5690",
+            storageBucket: "labhelper-a5690.appspot.com",
+            messagingSenderId: "444496150507",
+            appId: "1:444496150507:web:2da752bd23250f39fca3ae",
+            measurementId: "G-WBVDGV3753"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth();
+        const db = getDatabase(app);
+        console.log("page loaded - ready");
+
+        infoPage.addEventListener('click', (e) => {
+            window.location.href = "aboutUs.html";
+        })
+
+        //go back to the doctor home page
+        openChat.addEventListener('click', (e) => {
+            window.location.href = "caseChatClosed.html";
+        })
+
+        var role = localStorage.getItem("userRole");
+        console.log("user role: " + role);
+
+        homePage.addEventListener('click', (e) => {
+            if (role == "doctor") {
+                window.location.href = "doctorHome.html";
+            }
+            else {
+                window.location.href = "nurseHome.html";
+            }
+        })
+
+        newPatient.addEventListener('click', (e) => {
+            window.location.href = "createNewPatient.html";
+        })
+
+        patientList.addEventListener('click', (e) => {
+            window.location.href = "patientList.html";
+        })
+
+        patientCases.addEventListener('click', (e) => {
+            window.location.href = "patientCases.html";
+        })
+
+        patientCasesClosed.addEventListener('click', (e) => {
+            window.location.href = "patientCasesClosed.html";
+        })
+
+        inactivePatientList.addEventListener('click', (e) => {
+            window.location.href = "patientListNonActive.html";
+        })
+
+        //logout will sign user out, and below methid "onAuthChange" will catch else statement that no auth user detected and will go back to the index html
+        logout.addEventListener('click', (e) => {
+            console.log("starting to sign user out");
+            signOut(auth).then(() => {
+                // Sign-out successful.
+                console.log("user signed out, returning to index");
+            }).catch((error) => {
+                // An error happened.
+                console.log(error);
+            });
+        })
+
+        onAuthStateChanged(auth, (user) => {
+            console.log("auth state changed");
+            if (user) {
+                // User is signed in, get ID
+                const uid = user.uid;
+                console.log("account id: " + uid);
+
+                //load in selected case ID, patient ID, and case message
+                const patientID = localStorage.getItem('patient-id');
+                const caseID = localStorage.getItem('patient-case');
+                const caseMsg = localStorage.getItem('case-msg');
+                const caseNote = localStorage.getItem('case-note');
+                console.log("patientID: " + patientID + " . caseID: " + caseID) + " . Message: " + caseMsg;
+
+                document.getElementById("pageText").innerText = "Patient Message: " + caseMsg;
+                document.getElementById("pageText2").innerHTML = '<FONT COLOR="#ff0000">Closing Note:</FONT> ' + caseNote;
+                document.getElementById("logo").innerText = "CLOSED CASE: " + caseID;
+
+                //initialize firebase
+                const db = getDatabase();
+                const dbref = ref(db, 'patientInfo');
+
+                //load image of case
+                var ImgName, ImgUrl;
+                var files = [];
+                var reader = new FileReader();
+
+                const dbImage = ref(db, 'patientInfo/' + patientID + "/cases/" + caseID);
+                onValue(dbImage, (snapshot) => {
+                    var image_1 = document.getElementById('caseImage');
+                    var image_2 = document.getElementById('caseImage2');
+                    var image_3 = document.getElementById('caseImage3');
+
+                    var image1_exists = snapshot.val().image1;
+                    var image2_exists = snapshot.val().image2;
+                    var image3_exists = snapshot.val().image3;
+
+                    if (image1_exists == null) {
+                        image_1.parentNode.removeChild(image_1);
+                    }
+                    else {
+                        document.getElementById('caseImage').src = image1_exists;
+                    }
+
+                    if (image2_exists == null) {
+                        image_2.parentNode.removeChild(image_2);
+                    }
+                    else {
+                        document.getElementById('caseImage2').src = image2_exists;
+                    }
+
+                    if (image3_exists == null) {
+                        image_3.parentNode.removeChild(image_3);
+                    }
+                    else {
+                        document.getElementById('caseImage3').src = image3_exists;
+                    }
+                })
+
+                //create on click image method to enlarge image whenever it is clicked
+                //and make original size when clicked again
+                var imageSizing = 1;
+                window.enlargeImage = function (imageID) {
+                    console.log("enlarging image");
+                    if (imageSizing == 0) {
+                        var yourImg = document.getElementById(imageID);
+                        yourImg.style.height = '400px';
+                        yourImg.style.width = '400px';
+                        imageSizing = 1;
+                    }
+                    else if (imageSizing == 1) {
+                        var yourImg = document.getElementById(imageID);
+                        yourImg.style.height = '1200px';
+                        yourImg.style.width = '1200px';
+                        imageSizing = 0;
+                    }
+                }
+
+                //method to increase brightness of image by 250% if clicked brightenImage button. used for
+                //darker images to increase brightness and see the problem patient submitted.
+                var brightenImagebool = 0;
+                brightenImage.addEventListener('click', (e) => {
+                    console.log("changing brightness of image");
+                    if (brightenImagebool == 0) {
+                        var yourImg = document.getElementById('caseImage');
+                        var yourImg2 = document.getElementById('caseImage2');
+                        var yourImg3 = document.getElementById('caseImage3');
+
+                        //check if images exist as the case may have less than 3 images
+                        if (yourImg != null) {
+                            yourImg.style.filter = "brightness(250%)"
+                        }
+                        if (yourImg2 != null) {
+                            yourImg2.style.filter = "brightness(250%)"
+                        }
+                        if (yourImg3 != null) {
+                            yourImg3.style.filter = "brightness(250%)"
+                        }
+                        brightenImagebool = 1;
+                    }
+                    else if (brightenImagebool == 1) {
+                        var yourImg = document.getElementById('caseImage');
+                        var yourImg2 = document.getElementById('caseImage2');
+                        var yourImg3 = document.getElementById('caseImage3');
+
+                        //check that images exist as the case may have less than 3 images
+                        if (yourImg != null) {
+                            yourImg.style.filter = "brightness(100%)"
+                        }
+                        if (yourImg2 != null) {
+                            yourImg2.style.filter = "brightness(100%)"
+                        }
+                        if (yourImg3 != null) {
+                            yourImg3.style.filter = "brightness(100%)"
+                        }
+                        brightenImagebool = 0;
+                    }
+                })
+
+
+                //button to reopen a closed case
+                reopenCase.addEventListener('click', (e) => {
+
+                    //initialize firebase database to point to selected case messages
+                    const db = getDatabase();
+                    const dbMessages = ref(db, 'patientInfo/' + patientID + "/cases/" + caseID + "/status");
+
+                    //confirm if patient account exists by getting the patient node
+                    get(dbMessages).then((snapshot) => {
+                        //creating variable to store updated patient info
+                        var messageData = {
+                            closed: false,
+                            message: null,
+                        }
+
+                        //update the referenced database with messageData object
+                        const updates = {};
+                        updates['/patientInfo/' + patientID + "/cases/" + caseID + "/status"] = messageData;
+
+                        update(ref(db), updates);
+
+                        //after set message to null and closed status to false, return to closed cases page
+                        window.location.href = "patientCasesClosed.html";
+
+                    }).catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        console.log("failed to add message");
+                        alert(errorMessage);
+                    });
+                })
+
+
+            } else {
+                // User is signed out
+                //send him back to home page to login/register
+                window.location.href = "index.html";
+            }
+        });
+
+    </script>
+
+    <div id="editor">
+        <div id="app">
+            <div id="logo">
+                Select Case Closed
+            </div>
+        </div>
+        <hr>
+        <button id="homePage" class="btn"><i class="fa fa-home"></i> Home</button>
+        <button id="patientCases" class="btn"><i class="fa fa-bars"></i> Cases</button>
+        <button id="patientCasesClosed" class="btn"><i class="fa fa-bars"></i> Closed Cases</button>
+        <button id="newPatient" class="btn"><i class="fa fa-user-plus"></i> Register Patient</button>
+        <button id="patientList" class="btn"><i class="fa fa-users"></i> Patient List</button>
+        <button id="inactivePatientList" class="btn"><i class="fa fa-users"></i> Non-Active Patient List</button>
+        <button id="infoPage" class="btn"><i class="fa fa-info"></i> Info</button>
+        <button id="logout" class="btn"><i class="fa fa-sign-out"></i> Logout</button>
+        <br>
+        <br>
+        <p1 id="pageText"> Patient Message: </p1>
+        <br>
+        <p1 id="pageText2"></p1>
+        <br>
+        <br>
+        <button id="openChat" class="btn"><i class="fa fa-comment"></i> Open Chat</button>
+        <button id="brightenImage" class="btn"><i class="fa fa-sun-o"></i> Brighten Image</button>
+        <button id="reopenCase" class="btn"><i class="fa fa-reply"></i> Reopen Case</button>
+        <br>
+        <br>
+        <img id="caseImage" onclick="enlargeImage('caseImage');"> <label id="upProgress"></label>
+        <img id="caseImage2" onclick="enlargeImage('caseImage2');"> <label id="upProgress"></label>
+        <img id="caseImage3" onclick="enlargeImage('caseImage3');"> <label id="upProgress"></label>
+        <br>
+        <br>
+        <br>
+    </div>
+</body>
+
+
+</html>
